@@ -14,6 +14,16 @@ if ! docker info &>/dev/null; then
   DOCKER="sudo docker"
 fi
 
+# Split args that may contain multiple space-separated URLs in a single string
+# This lets users single-quote a batch of URLs to protect & from the shell:
+#   ./run.sh 'https://youtube.com/watch?v=aaa https://youtube.com/watch?v=bbb&t=3s'
+URLS=()
+for arg in "$@"; do
+  for url in $arg; do
+    URLS+=("$url")
+  done
+done
+
 $DOCKER run -it --rm \
   -e HOST_UID="$(id -u)" \
   -e HOST_GID="$(id -g)" \
@@ -27,6 +37,6 @@ $DOCKER run -it --rm \
     runuser -u hostuser -- bash -c "
       export HOME=/work PATH=/work/.local/bin:\$PATH
       pip install -U yt-dlp
-      bash ./download.sh $*
-    "
-  '
+      bash ./download.sh \"\$@\"
+    " _ "$@"
+  ' _ "${URLS[@]}"
