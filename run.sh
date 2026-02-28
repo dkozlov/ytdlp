@@ -24,7 +24,7 @@ for arg in "$@"; do
   done
 done
 
-$DOCKER run -it --rm \
+$DOCKER run --rm --init \
   -e HOST_UID="$(id -u)" \
   -e HOST_GID="$(id -g)" \
   -v "$(pwd)":/work \
