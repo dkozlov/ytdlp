@@ -18,6 +18,8 @@ else
 fi
 
 yt-dlp \
+  --js-runtimes node \
+  --remote-components ejs:github \
   -f "$FORMAT" \
   --merge-output-format mp4 \
   --max-filesize 500M \

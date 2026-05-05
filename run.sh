@@ -31,7 +31,7 @@ $DOCKER run --rm --init \
   -w /work \
   python:3 \
   bash -c '
-    apt-get update -y && apt-get install -y --no-install-recommends ffmpeg
+    apt-get update -y && apt-get install -y --no-install-recommends ffmpeg nodejs
     groupadd -g "$HOST_GID" hostuser 2>/dev/null
     useradd -u "$HOST_UID" -g "$HOST_GID" -d /work -s /bin/bash hostuser 2>/dev/null
     runuser -u hostuser -- bash -c "
