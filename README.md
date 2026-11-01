@@ -44,9 +44,30 @@ priority over a higher-quality dubbed version. If the source does not identify
 or provide an original track that matches these choices, the usual format
 fallbacks are used; these can contain translated audio.
 
-`--format-sort lang` also keeps the extractor's language preference ahead of
-quality when choosing among formats. See yt-dlp's
+Format sorting keeps the extractor's language preference first, then prefers
+H.264 video, AAC audio, and SDR to reduce conversion work. See yt-dlp's
 [format sorting documentation](https://github.com/yt-dlp/yt-dlp#sorting-formats).
+
+### iPhone playback
+
+Downloads are checked after merging/remuxing. H.264 video with 8-bit 4:2:0
+pixels and AAC audio can be kept as-is; other codecs are converted to these
+formats in MP4. Original audio remains preferred even when it needs conversion
+from Opus. HDR video is tone-mapped to SDR when converting. A failed conversion
+leaves the downloaded input intact and reports an error.
+
+Conversion takes additional time and can increase file size: the 500 MB limit
+applies to downloaded streams, not the final converted file.
+
+To repair an existing download while keeping the original (requires Python 3,
+ffmpeg, and ffprobe on your computer):
+
+```bash
+python3 iphone_compatible.py input.mp4 output_iphone.mp4
+```
+
+Omit the output path to replace an MP4 in place after a successful conversion.
+Existing files at a separate output path are never overwritten.
 
 ### Upload to FTP
 
@@ -62,4 +83,5 @@ Defaults: `192.168.1.119:2121`, user `asdf`. Uploads all `ytdlp_*` files into a 
 |---|---|
 | `run.sh` | Runs the download inside a Docker container with ffmpeg and yt-dlp |
 | `download.sh` | Invoked inside the container; calls yt-dlp with format/size constraints |
+| `iphone_compatible.py` | Checks codecs and converts incompatible streams for iPhone playback |
 | `upload.sh` | Uploads downloaded files to an FTP server |

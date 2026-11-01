@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
-set -x
+set -euxo pipefail
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# Pass the helper path through the environment so the shell hook can quote it safely.
+export YTDLP_IPHONE_HELPER="$SCRIPT_DIR/iphone_compatible.py"
 
 # Try the original audio first, then fall back when it isn't identified/available.
 # Apply the audio filter only to combined formats and audio-only streams.
@@ -30,8 +34,10 @@ yt-dlp \
   --js-runtimes node \
   --remote-components ejs:github \
   -f "$FORMAT" \
-  --format-sort lang \
+  --format-sort 'lang,vcodec:h264,acodec:aac,hdr:sdr' \
   --merge-output-format mp4 \
+  --remux-video mp4 \
+  --exec 'after_move:python3 "$YTDLP_IPHONE_HELPER" %(filepath)q' \
   --max-filesize 500M \
   -o "ytdlp_%(channel_id)s_%(id)s.%(ext)s" \
   "${YT_INPUT[@]}"
